@@ -1,0 +1,8 @@
+{
+    "realm": "jsfoo",
+    "auth-server-url": "http://localhost:8082/auth",
+    "ssl-required": "external",
+    "resource": "app-foo-angular",
+    "public-client": true,
+    "confidential-port": 0
+  }

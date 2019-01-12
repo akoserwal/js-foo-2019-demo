@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>keycloak demo</title>
+    <script src="keycloak.js"></script>
+</head>
+
+<body>
+    <h1>Welcome to Keycloak Demo</h1>
+
+</body>
+<script>
+
+    const MIN_VALIDITY = 70;
+    const REFRESH_TIMEOUT = 60000; // in milliseconds
+
+    var keycloak = Keycloak({
+        url: 'http://localhost:8082/auth',
+        realm: 'jsfoo',
+        clientId: 'test-app-client'
+    });
+
+
+    keycloak.init({ onLoad: 'check-sso'}).success(function (authenticated) {
+        console.log(authenticated);
+        try {
+            localStorage.setItem('acc_token', keycloak.token);
+            localStorage.setItem('refresh_acc_token', keycloak.refreshToken);
+        } catch (e) {
+            console.log("Failed to store token in local storage");
+        }
+
+    
+
+    }).error(function () {
+        console.log("failed");
+    });
+
+
+
+    // refresh login
+    setInterval(function () {
+
+        keycloak.updateToken(MIN_VALIDITY).success(function (refreshed) {
+            if (refreshed) {
+                console.log('Token refreshed');
+            } else {
+                console.log('Token not refreshed, valid for '
+                    + Math.round(keycloak.tokenParsed.exp + keycloak.timeSkew - new Date().getTime() / 1000) + ' seconds');
+            }
+        }).error(function () {
+            console.error('Failed to refresh token');
+        });
+
+    }, REFRESH_TIMEOUT);
+
+
+
+</script>
+
+</html>
